@@ -2,6 +2,7 @@
 class MediaDownloader {
   constructor() {
     this.detectedStreams = new Map();
+    this.detectedTabs = new Set(); // Add this  
     this.downloadQueue = new Map();
     this.init();
   }
@@ -88,12 +89,22 @@ class MediaDownloader {
   }
 
   addDetectedStream(url, tabId) {
+    // Skip if this tab already has a detected stream
+    if (this.detectedTabs.has(tabId)) {
+      return;
+    }
+
+
     // Skip very small files and common non-media patterns
     if (this.shouldSkipUrl(url)) return;
     
     const streamId = `${tabId}_${Date.now()}_${Math.random()}`;
     const mediaType = this.getMediaType(url);
     const fileSize = this.extractFileSize(url);
+
+
+    // Mark this tab as detected
+    this.detectedTabs.add(tabId);
     
     this.detectedStreams.set(streamId, {
       url: url,
@@ -196,6 +207,7 @@ class MediaDownloader {
       case 'CLEAR_STREAMS':
         this.detectedStreams.clear();
         this.updateBadgeCount(); // Update badge when streams are cleared
+        this.detectedTabs.clear(); // Add this
         sendResponse({ success: true });
         break;
 
