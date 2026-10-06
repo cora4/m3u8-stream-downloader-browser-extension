@@ -88,13 +88,16 @@ class MediaDownloader {
   }
 
   addDetectedStream(url, tabId) {
-    // Skip very small files and common non-media patterns
     if (this.shouldSkipUrl(url)) return;
-    
-    const streamId = `${tabId}_${Date.now()}_${Math.random()}`;
+  
     const mediaType = this.getMediaType(url);
     const fileSize = this.extractFileSize(url);
-    
+  
+    // One stream per Tab ID.
+    // If another stream is detected from the same tab,
+    // replace the existing stream instead of adding a duplicate.
+    const streamId = String(tabId);
+  
     this.detectedStreams.set(streamId, {
       url: url,
       tabId: tabId,
@@ -103,15 +106,19 @@ class MediaDownloader {
       type: mediaType,
       fileSize: fileSize
     });
-
-    // Update badge count
+  
+    // Number of unique Tab IDs
     this.updateBadgeCount();
-
-    // Notify popup if open
+  
     chrome.runtime.sendMessage({
       type: 'STREAM_DETECTED',
-      stream: { id: streamId, url: url, tabId: tabId, type: mediaType }
-    }).catch(() => {}); // Ignore if popup not open
+      stream: {
+        id: streamId,
+        url: url,
+        tabId: tabId,
+        type: mediaType
+      }
+    }).catch(() => {});
   }
 
   shouldSkipUrl(url) {
