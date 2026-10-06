@@ -118,7 +118,7 @@ class MediaDownloader {
     const skipPatterns = [
       'favicon', 'thumbnail', 'preview', 'poster', 'logo', 'icon',
       'analytics', 'tracking', 'beacon', 'pixel', 'ad.', 'ads.',
-      '.gif', '.jpg', '.jpeg', '.png', '.webp', '.svg'
+      '.gif', '.jpg', '.jpeg', '.png', '.webp', '.svg', 'm3u8'
     ];
     
     const urlLower = url.toLowerCase();
